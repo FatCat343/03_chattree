@@ -79,6 +79,7 @@ public class OutputHandler implements Runnable {
                             if (Client.clients.contains(tmp.branches.elementAt(i))) tmp.message.packet.send(tmp.branches.elementAt(i));
                         }
                         tmp.sendtime = LocalTime.now();
+                        if (tmp.message.packet.type == MType.check) checktime = checktime.plusSeconds(3);
                         System.out.println("id was added back");
                         resend.add(id); //add to tail
                     }
@@ -134,6 +135,7 @@ public class OutputHandler implements Runnable {
         mst.origtime = LocalTime.now();
         mst.sendtime = mst.origtime;
         Client.list.put(message.packet.id, mst);
+        System.out.println("puts in list new mess with id = " + message.packet.id);
         boolean res = resend.add(message.packet.id);
         //System.out.println("result of offering = " + res + " tryed to offer " + message.packet.id.toString());
         if (invoketime == null) {
@@ -176,7 +178,25 @@ public class OutputHandler implements Runnable {
         for (int i = 0; i < clients.size(); i++){
             Client.clients.remove(clients.elementAt(i));
             if (clients.elementAt(i).equals(Client.secroot)) {
-                if (!Client.thirdroot.equals(Client.self))Client.connect(Client.thirdroot);
+                System.out.println("Secroot in unreacheble, self = " + Client.self.addr + Client.self.port + ", thirdroot = " + Client.thirdroot.addr + Client.thirdroot.port);
+                if (!Client.thirdroot.equals(Client.self)) {
+                    Client.secroot.addr = Client.thirdroot.addr;
+                    Client.secroot.port = Client.thirdroot.port;
+                    System.out.println("connects to thirdroot");
+                    Client.connect(Client.secroot);
+                }
+                else {
+                    if (Client.clients.size() == 0) {
+                        Client.secroot = null;
+                        System.out.println("we were alone && thirdroot, do nothing");
+                    }
+                    else {
+                        Client.secroot.addr = Client.clients.get(0).addr;
+                        Client.secroot.port = Client.clients.get(0).port;
+                        System.out.println("connects to child, addr = " + Client.secroot.addr + ", port = " + Client.secroot.port);
+                        Client.connect(Client.secroot);
+                    }
+                }
             }
         }
     }

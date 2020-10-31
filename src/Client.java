@@ -69,10 +69,10 @@ public class Client {
             secroot = new ClientData();
             secroot.addr = addr_sec;
             secroot.port = port_sec;
-            clients.add(secroot);
         }
     }
     public static void connect(ClientData cl){
+        clients.add(secroot);
         Message tmp = new Message();
         msg tmpacket = new msg();
         tmpacket.cl = self;//will be sent to everyone except client himself
@@ -83,6 +83,6 @@ public class Client {
         tmp.type = MType.single;
         tmp.packet = tmpacket;
         Client.queue.add(tmp);
-        System.out.println("secroot was added on sending");
+        System.out.println("secroot was added on sending, id = " + tmp.packet.id);
     }
 }

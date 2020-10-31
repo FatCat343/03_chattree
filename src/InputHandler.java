@@ -99,6 +99,8 @@ public class InputHandler implements Runnable {
                         if (!Client.list.containsKey(packet.id)) { //see message first time - print + broadcast mes
                             //ask to print msg
                             //broadcast msg to all others
+                            MStruct mst = new MStruct();
+                            Client.list.put(packet.id, mst);
                             System.out.println(packet.text);
                             Message message = new Message();
                             message.packet = new msg();
@@ -113,6 +115,7 @@ public class InputHandler implements Runnable {
                             System.out.println("creating new message with message with id =" + message.packet.id + " to port = " + message.packet.cl.port + " addr = " + message.packet.cl.addr);
                             Client.queue.add(message);
                         }
+                        else System.out.println("already seen this message");
                     }
                     if (packet.type == MType.check) { //check was received
                         System.out.println("Check message received, id = " + packet.id);
