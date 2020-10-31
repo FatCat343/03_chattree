@@ -1,11 +1,13 @@
 import java.io.IOException;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.*;
 
 public class Client {
     //init : output queue, message map, map of all clients (incl comline)
@@ -19,17 +21,23 @@ public class Client {
     public static int port;
     public static String name;
     public static int loss;
-    public static ClientData secroot;
+    public static ClientData self = new ClientData();
+    public static ClientData secroot = null;
     public static DatagramSocket socket;
-    public static ClientData thirdroot;
+    public static ClientData thirdroot = null;
     public static ConcurrentHashMap<UUID, MStruct> list = new ConcurrentHashMap<>(); //GUID - MStruct
-    public static ConcurrentLinkedQueue<Message> queue = new ConcurrentLinkedQueue<>(); //queue on output
+    public static BlockingQueue<Message> queue = new LinkedBlockingQueue<>() ; //queue on output
     public static Vector<ClientData> clients = new Vector<>(); //list of clients
     public static void main(String[] args) {
-        try (DatagramSocket socket = new DatagramSocket(port)) {
+        try {
             parse(args);
+            socket = new DatagramSocket(port);
 
+            //System.out.println(InetAddress.getLocalHost().toString().split("/")[1]);
+            self.port = port;
+            self.addr = InetAddress.getLocalHost().toString().split("/")[1];
             if (args.length > 3) {
+                System.out.println(secroot.addr + " " + secroot.port);
                 connect(secroot); //parent = emergency root
             }
             OutputHandler.Start();
@@ -46,29 +54,35 @@ public class Client {
 //                clients.add(clients.size(), newclient);
 //            }
         } catch (IOException e) {
+            socket.close();
             e.printStackTrace();
         }
     }
     private static void parse(String[] args){
-        port = Integer.getInteger(args[2]);
         name = args[0];
-        loss = Integer.getInteger(args[1]);
+        //System.out.println(args[1] + "  " + args[2]);
+        loss = Integer.parseInt(args[2]);
+        port = Integer.parseInt(args[1]);
         if (args.length > 3) {
             String addr_sec = args[3];
-            int port_sec = Integer.getInteger(args[4]);
-            ClientData secroot = new ClientData();
+            int port_sec = Integer.parseInt(args[4]);
+            secroot = new ClientData();
             secroot.addr = addr_sec;
             secroot.port = port_sec;
+            clients.add(secroot);
         }
     }
     public static void connect(ClientData cl){
         Message tmp = new Message();
         msg tmpacket = new msg();
-        tmpacket.cl = cl;
+        tmpacket.cl = self;//will be sent to everyone except client himself
         tmpacket.id = UUID.randomUUID();
+
         tmpacket.text = cl.addr + " " + cl.port;
         tmpacket.type = MType.secroot;
         tmp.type = MType.single;
+        tmp.packet = tmpacket;
         Client.queue.add(tmp);
+        System.out.println("secroot was added on sending");
     }
 }
