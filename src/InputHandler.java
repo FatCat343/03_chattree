@@ -21,9 +21,6 @@ public class InputHandler implements Runnable {
     //blocks on reading
     //public int loss;
     public String addr;
-    public DatagramSocket client;
-    //private static ConcurrentLinkedQueue<Message> queue;
-    //private static ConcurrentHashMap<Integer, MStruct> list; //GUID-MStruct
     public void run(){
         try {
             while (true) {
