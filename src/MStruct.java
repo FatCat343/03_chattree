@@ -8,4 +8,5 @@ public class MStruct {
     public LocalTime sendtime; //time of last sending
     public LocalTime origtime; //time of first sending
     public Vector<ClientData> branches = new Vector<ClientData>(); //clients where to send
+
 }

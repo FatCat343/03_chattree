@@ -5,6 +5,7 @@ import java.util.UUID;
 public class ComLineHandler implements Runnable{
     //same as input but with comandline
     public void run(){
+
         Scanner in = new Scanner(System.in);
         while (true) {
             String input = in.next();

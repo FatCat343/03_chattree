@@ -105,6 +105,7 @@ public class OutputHandler implements Runnable {
     public LocalTime invoketime = null;
     public void run(){
         while (true) {
+
             Message message = Client.queue.poll();
             if (message != null) {
                 if (message.packet.type == MType.message) send_all(message);

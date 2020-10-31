@@ -28,6 +28,7 @@ public class Client {
     public static void main(String[] args) {
         try (DatagramSocket socket = new DatagramSocket(port)) {
             parse(args);
+
             if (args.length > 3) {
                 connect(secroot); //parent = emergency root
             }

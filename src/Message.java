@@ -7,6 +7,7 @@ class MType{
     public static int broadcast = 7;
 }
 public class Message {
+
     public msg packet; //Datagramm packet
     //public String packet;
     public int type; // single or broadcast --- ????

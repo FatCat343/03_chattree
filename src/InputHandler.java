@@ -24,6 +24,7 @@ public class InputHandler implements Runnable {
     public void run(){
         try {
             while (true) {
+
                 //byte[] byteArray = new byte[8192];
                 //int len = input.read(byteArray, 0, 8192); //reads String Name:Text
                 //msg mes = new msg();

@@ -11,6 +11,7 @@ public class msg implements Serializable {
     public ClientData cl; //IP + port diff from ours
     public void receive() throws IOException, ClassNotFoundException {
 
+
         try {
             byte[] recvBuf = new byte[5000];
             DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
