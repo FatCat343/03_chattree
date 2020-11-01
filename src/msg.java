@@ -9,7 +9,7 @@ public class msg implements Serializable {
     public int type; //0 - message, 1 - reply, 2 - secroot
     public UUID id; //unique Id of packet
     public ClientData cl; //IP + port diff from ours
-    public void receive() throws IOException, ClassNotFoundException {
+    public void receive() {
         try {
             byte[] recvBuf = new byte[5000];
             DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
@@ -56,7 +56,7 @@ public class msg implements Serializable {
             byte[] sendBuf = byteStream.toByteArray();
             DatagramPacket packet = new DatagramPacket(sendBuf, sendBuf.length, address, cld.port);
             int byteCount = packet.getLength();
-            System.out.println("sends " + type + " with id = " + id + " to addr = " + cld.addr + " to port = " + cld.port);
+            //System.out.println("sends " + type + " with id = " + id + " to addr = " + cld.addr + " to port = " + cld.port);
             Client.socket.send(packet);
 
             os.close();

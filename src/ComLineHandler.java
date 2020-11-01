@@ -6,6 +6,7 @@ public class ComLineHandler implements Runnable{
     //same as input but with comandline
     public void run(){
         Scanner in = new Scanner(System.in);
+        in.useDelimiter("\n");
         System.out.println("Type here:");
         while (true) {
             String input = in.next();
@@ -18,7 +19,7 @@ public class ComLineHandler implements Runnable{
             packet.id = UUID.randomUUID();
             packet.type = MType.message;
             message.packet = packet;
-            System.out.println("created new message with id = " + packet.id);
+            //System.out.println("created new message with id = " + packet.id + " text = " + message.packet.text);
             Client.queue.add(message);
         }
     }

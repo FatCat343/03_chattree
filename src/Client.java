@@ -3,6 +3,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
@@ -21,18 +22,19 @@ public class Client {
     public static int port;
     public static String name;
     public static int loss;
+    public static volatile LocalTime mescheck = null; //time when to check messages map, msg timeout = 15sec
     public static ClientData self = new ClientData();
     public static ClientData secroot = null;
     public static DatagramSocket socket;
     public static ClientData thirdroot = null;
-    public static ConcurrentHashMap<UUID, MStruct> list = new ConcurrentHashMap<>(); //GUID - MStruct
+    public static ConcurrentHashMap<UUID, MStruct> list = new ConcurrentHashMap<>(); //GUID - MStruct - list of what we send
     public static BlockingQueue<Message> queue = new LinkedBlockingQueue<>() ; //queue on output
+    public static ConcurrentHashMap<UUID, LocalTime> messages = new ConcurrentHashMap<>();//map of <id, lastTimeReceived> not to repeat same message
     public static Vector<ClientData> clients = new Vector<>(); //list of clients
     public static void main(String[] args) {
         try {
             parse(args);
             socket = new DatagramSocket(port);
-
             //System.out.println(InetAddress.getLocalHost().toString().split("/")[1]);
             self.port = port;
             self.addr = InetAddress.getLocalHost().toString().split("/")[1];
@@ -83,6 +85,6 @@ public class Client {
         tmp.type = MType.single;
         tmp.packet = tmpacket;
         Client.queue.add(tmp);
-        System.out.println("secroot was added on sending, id = " + tmp.packet.id);
+        //System.out.println("secroot was added on sending, id = " + tmp.packet.id);
     }
 }

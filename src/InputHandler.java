@@ -6,6 +6,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.UUID;
@@ -35,9 +36,9 @@ public class InputHandler implements Runnable {
                 byte[] buffer = new byte[1024];
                 msg packet = new msg();
                 packet.receive();
-                System.out.println("received new packet");
+                //System.out.println("received new packet");
                 if (Client.loss > Math.random() * 100) {
-                    System.out.println("input was dropped");
+                    //System.out.println("input was dropped");
                     continue;
                 }
                 //check if packet address + port is in the list
@@ -45,7 +46,7 @@ public class InputHandler implements Runnable {
                     //first message from client -> new client
                     //adds it to client list + sends secondary root
                     //System.out.println("clients len = " + Client.clients.size());
-                    System.out.println("new client, port = "+packet.cl.port + ", addr = "+ packet.cl.addr);
+                    //System.out.println("new client, port = "+packet.cl.port + ", addr = "+ packet.cl.addr);
                     Client.clients.add(packet.cl);
                     //if (!Client.clients.contains(packet.cl)) System.out.println("adding failed");
                     //else System.out.println("clients len = " + Client.clients.size());
@@ -74,20 +75,20 @@ public class InputHandler implements Runnable {
                     tmp.packet.cl = Client.self;
                     //System.out.println("adding tmp with output addr ="+tmp.packet.cl.addr);
                     tmp.type = MType.single;
-                    System.out.println("creating new message with secroot with id =" + tmp.packet.id + " to port = " + tmp.packet.cl.port + " addr = " + tmp.packet.cl.addr);
+                    //System.out.println("creating new message with secroot with id =" + tmp.packet.id + " to port = " + tmp.packet.cl.port + " addr = " + tmp.packet.cl.addr);
                     Client.queue.add(tmp);
                 }
                 //anyway we need to parse received packet's message
                 if (packet.type == MType.reply) { //reply on receiving our msg - find it in map + delete us
-                    System.out.println("received reply with id =" + packet.id + " port = " + packet.cl.port + "addr = " + packet.cl.addr + "brsize was = "+ Client.list.get(packet.id).branches.size());
+                    //System.out.println("received reply with id =" + packet.id + " port = " + packet.cl.port + "addr = " + packet.cl.addr + "brsize was = "+ Client.list.get(packet.id).branches.size());
                     Client.list.get(packet.id).branches.remove(packet.cl);
-                    System.out.println("brsize is = "+ Client.list.get(packet.id).branches.size());
+                   // System.out.println("brsize is = "+ Client.list.get(packet.id).branches.size());
                 } else {
                     if (packet.type == MType.secroot) {
                         //second root info - change info about our thirdroot IF ONLY host of msg was our secroot
-                        System.out.println("received secroot message, GUID = " + packet.id + " port = " + packet.cl.port + "addr = " + packet.cl.addr);
+                        //System.out.println("received secroot message, GUID = " + packet.id + " port = " + packet.cl.port + "addr = " + packet.cl.addr);
                         if (packet.cl.equals(Client.secroot)) {
-                            System.out.println("   from ours secroot, changes thirdroot to " + packet.text.split(" ")[0] + " " + Integer.parseInt(packet.text.split(" ")[1]));
+                            //System.out.println("   from ours secroot, changes thirdroot to " + packet.text.split(" ")[0] + " " + Integer.parseInt(packet.text.split(" ")[1]));
                             //System.out.println("change from " + Client.thirdroot.port + " to " + Integer.parseInt(packet.text.split(" ")[1]));
                             if (Client.thirdroot == null) Client.thirdroot = new ClientData();
                             Client.thirdroot.port = Integer.parseInt(packet.text.split(" ")[1]);
@@ -95,12 +96,16 @@ public class InputHandler implements Runnable {
                         }
                     }
                     if (packet.type == MType.message){ //message was received
-                        System.out.println("message received, id = " + packet.id + " port = " + packet.cl.port + "addr = " + packet.cl.addr);
-                        if (!Client.list.containsKey(packet.id)) { //see message first time - print + broadcast mes
+                        //System.out.println("message received, id = " + packet.id + " port = " + packet.cl.port + "addr = " + packet.cl.addr);
+                        if (!Client.messages.containsKey(packet.id)) { //see message first time - print + broadcast mes
                             //ask to print msg
                             //broadcast msg to all others
-                            MStruct mst = new MStruct();
-                            Client.list.put(packet.id, mst);
+                            //MStruct mst = new MStruct();
+                            //Client.list.put(packet.id, mst);
+                            LocalTime tmp = LocalTime.now();
+                            Client.messages.put(packet.id, tmp);
+                            if (Client.mescheck == null) Client.mescheck = tmp.plusSeconds(15);
+
                             System.out.println(packet.text);
                             Message message = new Message();
                             message.packet = new msg();
@@ -112,19 +117,24 @@ public class InputHandler implements Runnable {
                             message.packet.id = UUID.randomUUID(); //destroys packet id to form reply!!!!!
                             //message.host = addr; //addr of sender of text
                             message.type = MType.broadcast;
-                            System.out.println("creating new message with message with id =" + message.packet.id + " to port = " + message.packet.cl.port + " addr = " + message.packet.cl.addr);
+                            //System.out.println("creating new message with message with id =" + message.packet.id + " to port = " + message.packet.cl.port + " addr = " + message.packet.cl.addr);
                             Client.queue.add(message);
                         }
-                        else System.out.println("already seen this message");
+                        else {
+                            LocalTime tmp = Client.messages.remove(packet.id);
+                            LocalTime newtmp = LocalTime.now();
+                            Client.messages.put(packet.id, newtmp);
+                            //System.out.println("already seen this message");
+                        }
                     }
-                    if (packet.type == MType.check) { //check was received
-                        System.out.println("Check message received, id = " + packet.id);
-                    }
+//                    if (packet.type == MType.check) { //check was received
+//                        //System.out.println("Check message received, id = " + packet.id);
+//                    }
                     //form a reply
                     Message message = new Message();
                     packet.type = MType.reply;
                     message.packet = packet; //check if GUID stays same
-                    System.out.println("forms reply with id =" + message.packet.id);
+                    //System.out.println("forms reply with id =" + message.packet.id);
                     message.host = addr; //addr of sender of text
                     message.type = MType.single;
                     Client.queue.add(message);
@@ -133,10 +143,10 @@ public class InputHandler implements Runnable {
 
             }
 
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
         }
-        catch (IOException | ClassNotFoundException err){
-            err.printStackTrace();
-        }
+
     }
     public static void Start(){
         Thread t = new Thread(new InputHandler());
