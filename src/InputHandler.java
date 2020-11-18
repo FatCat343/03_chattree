@@ -63,11 +63,11 @@ public class InputHandler implements Runnable {
                         Client.secroot = new ClientData();
                         Client.secroot = packet.cl;
                     }
-                    if (Client.thirdroot == null) {
-                        Client.thirdroot = new ClientData();
-                        Client.thirdroot.addr = packet.text.split(" ")[0];
-                        Client.thirdroot.port = Integer.parseInt(packet.text.split(" ")[1]);
-                    }
+//                    if (Client.thirdroot == null) {
+//                        Client.thirdroot = new ClientData();
+//                        Client.thirdroot.addr = packet.text.split(" ")[0];
+//                        Client.thirdroot.port = Integer.parseInt(packet.text.split(" ")[1]);
+//                    }
                     tmpacket.text = Client.secroot.addr + " " + Client.secroot.port;
                     tmpacket.type = MType.secroot;
                     tmp.packet = tmpacket;
