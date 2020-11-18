@@ -37,7 +37,8 @@ public class Client {
             socket = new DatagramSocket(port);
             //System.out.println(InetAddress.getLocalHost().toString().split("/")[1]);
             self.port = port;
-            self.addr = InetAddress.getLocalHost().toString().split("/")[1];
+            //self.addr = InetAddress.getLocalHost().toString().split("/")[1];
+            self.addr = "0.0.0.0";
             if (args.length > 3) {
                 System.out.println(secroot.addr + " " + secroot.port);
                 connect(secroot); //parent = emergency root
@@ -77,13 +78,22 @@ public class Client {
         clients.add(secroot);
         Message tmp = new Message();
         msg tmpacket = new msg();
-        tmpacket.cl = self;//will be sent to everyone except client himself
+        tmpacket.cl = cl;//will be sent to everyone except secroot
         tmpacket.id = UUID.randomUUID();
-
         tmpacket.text = cl.addr + " " + cl.port;
         tmpacket.type = MType.secroot;
-        tmp.type = MType.single;
+        tmp.type = MType.broadcast;
         tmp.packet = tmpacket;
+        Client.queue.add(tmp);
+
+        Message tmp_self = new Message();
+        msg tmpacket_self = new msg();
+        tmpacket_self.cl = cl;//will be sent to secroot
+        tmpacket_self.id = UUID.randomUUID();
+        tmpacket_self.text = cl.addr + " " + cl.port;
+        tmpacket_self.type = MType.secroot_self;
+        tmp_self.type = MType.single;
+        tmp_self.packet = tmpacket_self;
         Client.queue.add(tmp);
         //System.out.println("secroot was added on sending, id = " + tmp.packet.id);
     }

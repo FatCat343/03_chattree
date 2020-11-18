@@ -47,36 +47,37 @@ public class InputHandler implements Runnable {
                     //adds it to client list + sends secondary root
                     //System.out.println("clients len = " + Client.clients.size());
                     //System.out.println("new client, port = "+packet.cl.port + ", addr = "+ packet.cl.addr);
-                    Client.clients.add(packet.cl);
-                    //if (!Client.clients.contains(packet.cl)) System.out.println("adding failed");
-                    //else System.out.println("clients len = " + Client.clients.size());
-                    Message tmp = new Message();
-                    msg tmpacket = new msg();
-                    tmpacket.cl = packet.cl;
-                    tmpacket.id = UUID.randomUUID();
-//                    if (Client.secroot != null) tmpacket.text = Client.secroot.addr + " " + Client.secroot.port;
-//                    else {
-//                        Client.secroot = packet.cl;
-//                        Client.thirdroot = packet.cl;
-//                    }
                     if (Client.secroot == null){ //was not connected to anyone
                         Client.secroot = new ClientData();
                         Client.secroot = packet.cl;
                     }
-//                    if (Client.thirdroot == null) {
-//                        Client.thirdroot = new ClientData();
-//                        Client.thirdroot.addr = packet.text.split(" ")[0];
-//                        Client.thirdroot.port = Integer.parseInt(packet.text.split(" ")[1]);
-//                    }
-                    tmpacket.text = Client.secroot.addr + " " + Client.secroot.port;
-                    tmpacket.type = MType.secroot;
-                    tmp.packet = tmpacket;
-                    tmp.packet.id = UUID.randomUUID();
-                    tmp.packet.cl = Client.self;
-                    //System.out.println("adding tmp with output addr ="+tmp.packet.cl.addr);
-                    tmp.type = MType.single;
-                    //System.out.println("creating new message with secroot with id =" + tmp.packet.id + " to port = " + tmp.packet.cl.port + " addr = " + tmp.packet.cl.addr);
-                    Client.queue.add(tmp);
+                    Client.clients.add(packet.cl);
+//                    //if (!Client.clients.contains(packet.cl)) System.out.println("adding failed");
+//                    //else System.out.println("clients len = " + Client.clients.size());
+//                    Message tmp = new Message();
+//                    msg tmpacket = new msg();
+//                    tmpacket.cl = packet.cl;
+//                    tmpacket.id = UUID.randomUUID();
+////                    if (Client.secroot != null) tmpacket.text = Client.secroot.addr + " " + Client.secroot.port;
+////                    else {
+////                        Client.secroot = packet.cl;
+////                        Client.thirdroot = packet.cl;
+////                    }
+////                    if (Client.thirdroot == null) {
+////                        Client.thirdroot = new ClientData();
+////                        Client.thirdroot.addr = packet.text.split(" ")[0];
+////                        Client.thirdroot.port = Integer.parseInt(packet.text.split(" ")[1]);
+////                    }
+//                    tmpacket.text = Client.secroot.addr + " " + Client.secroot.port;
+//                    tmpacket.type = MType.secroot;
+//                    tmp.packet = tmpacket;
+//                    tmp.packet.id = UUID.randomUUID();
+//                    tmp.packet.cl = Client.self;
+//                    //System.out.println("adding tmp with output addr ="+tmp.packet.cl.addr);
+//                    tmp.type = MType.single;
+//                    //System.out.println("creating new message with secroot with id =" + tmp.packet.id + " to port = " + tmp.packet.cl.port + " addr = " + tmp.packet.cl.addr);
+//                    Client.queue.add(tmp);
+                    Client.connect(Client.secroot);
                 }
                 //anyway we need to parse received packet's message
                 if (packet.type == MType.reply) { //reply on receiving our msg - find it in map + delete us
@@ -85,7 +86,7 @@ public class InputHandler implements Runnable {
                    // System.out.println("brsize is = "+ Client.list.get(packet.id).branches.size());
                 } else {
                     if (packet.type == MType.secroot) {
-                        //second root info - change info about our thirdroot IF ONLY host of msg was our secroot
+                        //second root info WHEN we are not this secroot - change info about our thirdroot IF ONLY host of msg was our secroot
                         //System.out.println("received secroot message, GUID = " + packet.id + " port = " + packet.cl.port + "addr = " + packet.cl.addr);
                         if (packet.cl.equals(Client.secroot)) {
                             //System.out.println("   from ours secroot, changes thirdroot to " + packet.text.split(" ")[0] + " " + Integer.parseInt(packet.text.split(" ")[1]));
@@ -93,6 +94,17 @@ public class InputHandler implements Runnable {
                             if (Client.thirdroot == null) Client.thirdroot = new ClientData();
                             Client.thirdroot.port = Integer.parseInt(packet.text.split(" ")[1]);
                             Client.thirdroot.addr = packet.text.split(" ")[0];
+                        }
+                    }
+                    if (packet.type == MType.secroot_self) {
+                        //second root info WHEN we are this secroot - change info about our thirdroot IF ONLY host of msg was our secroot
+                        //System.out.println("received secroot message, GUID = " + packet.id + " port = " + packet.cl.port + "addr = " + packet.cl.addr);
+                        if (packet.cl.equals(Client.secroot)) {
+                            //System.out.println("   from ours secroot, changes thirdroot to " + packet.text.split(" ")[0] + " " + Integer.parseInt(packet.text.split(" ")[1]));
+                            //System.out.println("change from " + Client.thirdroot.port + " to " + Integer.parseInt(packet.text.split(" ")[1]));
+                            if (Client.thirdroot == null) Client.thirdroot = new ClientData();
+                            Client.thirdroot.port = Client.self.port;
+                            Client.thirdroot.addr = Client.self.addr;
                         }
                     }
                     if (packet.type == MType.message){ //message was received

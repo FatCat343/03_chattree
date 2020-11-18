@@ -43,6 +43,11 @@ public class OutputHandler implements Runnable {
                         //message.packet.send(message.packet.cl); //only to packet.cl
                         send_single(message);
                     }
+                    if (message.packet.type == MType.secroot_self) { //check - single
+                        //System.out.println("send reply"+LocalTime.from(invoketime).getSecond());
+                        //message.packet.send(message.packet.cl); //only to packet.cl
+                        send_single(message);
+                    }
 
                 }
             } catch (InterruptedException e) {
