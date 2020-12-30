@@ -11,13 +11,6 @@ import java.util.Vector;
 import java.util.concurrent.*;
 
 public class Client {
-    //init : output queue, message map, map of all clients (incl comline)
-    //not map but list --> <id, message, sendtime, origtime, list <id, clientIP>>
-    //message = <msg, reply/message, host>
-    //msg = <ID, text>
-    //connect Y\N -> choose + connect
-    //open inputhandler + outputhandler + inputhandler for client (comlinehandler)
-    //loops on accepting + opening new inputhandler
 
     public static int port;
     public static String name;
@@ -35,9 +28,7 @@ public class Client {
         try {
             parse(args);
             socket = new DatagramSocket(port);
-            //System.out.println(InetAddress.getLocalHost().toString().split("/")[1]);
             self.port = port;
-            //self.addr = InetAddress.getLocalHost().toString().split("/")[1];
             self.addr = "0.0.0.0";
             if (args.length > 3) {
                 System.out.println(secroot.addr + " " + secroot.port);
@@ -47,15 +38,6 @@ public class Client {
             InputHandler.Start();
             ComLineHandler.Start();
             System.out.println("ready to wait new messages");
-//            while (true) {
-//                //Socket client = in.accept();
-//                System.out.println("accepted new client");
-//                InputHandler.Start(client);
-//                ClientData newclient;
-//                newclient.addr = ;//?
-//                newclient.port = ;//?
-//                clients.add(clients.size(), newclient);
-//            }
         } catch (IOException e) {
             socket.close();
             e.printStackTrace();
@@ -63,7 +45,6 @@ public class Client {
     }
     private static void parse(String[] args){
         name = args[0];
-        //System.out.println(args[1] + "  " + args[2]);
         loss = Integer.parseInt(args[2]);
         port = Integer.parseInt(args[1]);
         if (args.length > 3) {
@@ -95,6 +76,5 @@ public class Client {
         tmp_self.type = MType.single;
         tmp_self.packet = tmpacket_self;
         Client.queue.add(tmp);
-        //System.out.println("secroot was added on sending, id = " + tmp.packet.id);
     }
 }

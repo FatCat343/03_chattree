@@ -9,8 +9,6 @@ class MType{
 }
 public class Message {
     public msg packet; //Datagramm packet
-    //public String packet;
-    public int type; // single or broadcast --- ????
-    public String host; //?
-    //public ClientData cl;
+    public int type;
+    public String host;
 }

@@ -19,7 +19,6 @@ public class ComLineHandler implements Runnable{
             packet.id = UUID.randomUUID();
             packet.type = MType.message;
             message.packet = packet;
-            //System.out.println("created new message with id = " + packet.id + " text = " + message.packet.text);
             Client.queue.add(message);
         }
     }

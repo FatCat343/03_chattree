@@ -13,10 +13,7 @@ public class msg implements Serializable {
         try {
             byte[] recvBuf = new byte[5000];
             DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
-            //System.out.println("port = " +Client.port);
-
             Client.socket.receive(packet);
-            //System.out.println("received");
             int byteCount = packet.getLength();
             ByteArrayInputStream byteStream = new ByteArrayInputStream(recvBuf);
             ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(byteStream));
@@ -29,7 +26,6 @@ public class msg implements Serializable {
             this.cl = new ClientData();
             cl.addr = packet.getAddress().toString().split("/")[1];
             cl.port = packet.getPort();
-            //System.out.println("received packet with addr=" + cl.addr+ ", port=" + cl.port+".");
         }
         catch (IOException e) {
             System.err.println("Exception:  " + e);
@@ -38,25 +34,16 @@ public class msg implements Serializable {
         catch (ClassNotFoundException e) { e.printStackTrace(); }
     }
     public void send(ClientData cld) {
-//        msg tmp = new msg();
-//        tmp.id = this.id;
-//        tmp.text = this.text;
-//        tmp.type = this.type;
-//        out.writeObject(tmp);
-//        out.flush();
         try {
-            //System.out.println("send on addr=" + cld.addr + ", port="+ cld.port);
             InetAddress address = InetAddress.getByName(cld.addr);
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream(5000);
             ObjectOutputStream os = new ObjectOutputStream(new BufferedOutputStream(byteStream));
             os.flush();
             os.writeObject(this);
             os.flush();
-            //retrieves byte array
             byte[] sendBuf = byteStream.toByteArray();
             DatagramPacket packet = new DatagramPacket(sendBuf, sendBuf.length, address, cld.port);
             int byteCount = packet.getLength();
-            //System.out.println("sends " + type + " with id = " + id + " to addr = " + cld.addr + " to port = " + cld.port);
             Client.socket.send(packet);
 
             os.close();
